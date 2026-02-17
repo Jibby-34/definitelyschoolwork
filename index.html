@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Definitely Schoolwork</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0b0f;
+      --surface:   #12141c;
+      --card:      #181b26;
+      --border:    #252a3a;
+      --accent1:   #7c3aed;
+      --accent2:   #06b6d4;
+      --accent-glow: rgba(124, 58, 237, 0.45);
+      --text:      #e8eaf0;
+      --muted:     #6b7280;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient background orbs ── */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+      top: -200px; left: -200px;
+    }
+    body::after {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(6,182,212,0.13) 0%, transparent 70%);
+      bottom: -150px; right: -150px;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      height: 72px;
+      background: rgba(18, 20, 28, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.02em;
+    }
+
+    .header-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--accent2);
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 2rem) clamp(2rem, 5vw, 3.5rem);
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      background: rgba(124, 58, 237, 0.12);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      padding: 5px 16px;
+      border-radius: 999px;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 5.5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ── Search / Filter bar ── */
+    .filter-bar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      padding: 0 clamp(1rem, 4vw, 2rem) 2.5rem;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    #search::placeholder { color: var(--muted); }
+    #search:focus {
+      border-color: var(--accent1);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    }
+
+    /* ── Game count ── */
+    .section-header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem) 1.2rem;
+    }
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    #game-count {
+      font-size: 0.78rem;
+      color: var(--accent2);
+      font-weight: 500;
+    }
+
+    /* ── Grid ── */
+    .grid-wrap {
+      position: relative;
+      z-index: 1;
+      padding: 0 clamp(1.5rem, 5vw, 4rem) 5rem;
+    }
+
+    #game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── Game Card ── */
+    .game-card {
+      text-decoration: none;
+      color: inherit;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.28s cubic-bezier(.22,.68,0,1.2),
+                  border-color 0.25s,
+                  box-shadow 0.28s;
+      position: relative;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(6,182,212,0.04) 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px) scale(1.025);
+      border-color: var(--accent1);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,58,237,0.25), 0 0 30px var(--accent-glow);
+    }
+    .game-card:hover::before { opacity: 1; }
+
+    .card-thumb {
+      position: relative;
+      aspect-ratio: 16/11;
+      overflow: hidden;
+      background: #0f1018;
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+      display: block;
+    }
+    .game-card:hover .card-thumb img { transform: scale(1.08); }
+
+    .card-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 11, 15, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .game-card:hover .card-play-overlay { opacity: 1; }
+
+    .play-btn {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 28px rgba(124, 58, 237, 0.7);
+      font-size: 1.25rem;
+    }
+
+    .card-info {
+      padding: 14px 16px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      opacity: 0.8;
+    }
+
+    /* ── No results ── */
+    #no-results {
+      display: none;
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--muted);
+    }
+    #no-results .nr-icon { font-size: 3rem; margin-bottom: 1rem; }
+    #no-results h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    footer span {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+    }
+
+    /* ── Responsive tweaks ── */
+    @media (max-width: 480px) {
+      #game-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 0.9rem; }
+      .logo-text { font-size: 0.88rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎮</div>
+      <span class="logo-text">Definitely Schoolwork</span>
+    </a>
+    <div class="header-badge">Game Hub</div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-label">✦ Free &amp; Unblocked ✦</div>
+    <h1>Your <span>Game Hub</span><br />Awaits</h1>
+    <p>Totally educational content. Pick a game and get to learning.</p>
+  </section>
+
+  <!-- ── Search ── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="search" type="text" placeholder="Search games…" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- ── Section header ── -->
+  <div class="section-header">
+    <span class="section-title">All Games</span>
+    <span id="game-count"></span>
+  </div>
+
+  <!-- ── Grid ── -->
+  <div class="grid-wrap">
+    <div id="game-grid"></div>
+    <div id="no-results">
+      <div class="nr-icon">🎲</div>
+      <h3>No games found</h3>
+      <p>Try a different search term.</p>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <p>Made with ❤️ for <span>Definitely Schoolwork</span> &nbsp;·&nbsp; All games via MadKidGames</p>
+  </footer>
+
+  <script>
+    const GAMES = [
+      {
+        title: "Ultimate Car Driving Simulator",
+        url:   "https://www.madkidgames.com/full/ultimate-car-driving-simulator",
+        icon:  "resources/icons/ultimatecardrivingsimulator.jpg",
+        tag:   "Racing"
+      },
+      {
+        title: "Hot Wheels Race Off",
+        url:   "https://www.madkidgames.com/full/hot-wheels-race-off",
+        icon:  "resources/icons/hotwheelsraceoff.jpg",
+        tag:   "Racing"
+      },
+      {
+        title: "Survivor.io",
+        url:   "https://www.madkidgames.com/full/survivor-io",
+        icon:  "resources/icons/survivorio.jpg",
+        tag:   "Survival"
+      },
+      {
+        title: "World Cricket Championship Lite",
+        url:   "https://www.madkidgames.com/full/world-cricket-championship-lte",
+        icon:  "resources/icons/worldcricketchampionshiplite.jpg",
+        tag:   "Sports"
+      },
+      {
+        title: "Extreme Bus Driver Simulator",
+        url:   "https://www.madkidgames.com/full/extreme-bus-driver-simulator",
+        icon:  "resources/icons/extremebusdriversimulator.jpg",
+        tag:   "Simulation"
+      },
+      {
+        title: "Offroad Outlaws",
+        url:   "https://www.madkidgames.com/full/offroad-outlaws",
+        icon:  "resources/icons/offroadoutlaws.jpg",
+        tag:   "Racing"
+      },
+      {
+        title: "Free Kick Football 3D Soccer",
+        url:   "https://www.madkidgames.com/full/free-kick-football-3d-soccer",
+        icon:  "resources/icons/freekickfootball3dsoccer.jpg",
+        tag:   "Sports"
+      },
+      {
+        title: "Mineclicker: Idle Minecraft Clicker",
+        url:   "https://www.madkidgames.com/full/mineclicker-idle-minecraft-clicker",
+        icon:  "resources/icons/mineclicker.jpg",
+        tag:   "Idle"
+      },
+      {
+        title: "Ultimate Motorcycle Simulator",
+        url:   "https://www.madkidgames.com/full/ultimate-motorcycle-simulator",
+        icon:  "resources/icons/ultimatemotorscyclesimulator.jpg",
+        tag:   "Racing"
+      },
+      {
+        title: "Outlets Rush 3D: Idle Tycoon",
+        url:   "https://www.madkidgames.com/full/outlets-rush-3d-idle-tycoon",
+        icon:  "resources/icons/outletsrush.jpg",
+        tag:   "Idle"
+      },
+      {
+        title: "MMX Hill Dash",
+        url:   "https://www.madkidgames.com/full/mmx-hill-dash",
+        icon:  "resources/icons/mmxhilldash.jpg",
+        tag:   "Racing"
+      },
+      {
+        title: "Royal Battletown GTA Game",
+        url:   "https://www.madkidgames.com/full/royal-battletown-gta-game",
+        icon:  "resources/icons/royalbattletowngtagame.jpg",
+        tag:   "Action"
+      },
+      {
+        title: "Real Pool 3D",
+        url:   "https://www.madkidgames.com/full/real-pool-3d",
+        icon:  "resources/icons/realpool3d.jpg",
+        tag:   "Sports"
+      },
+      {
+        title: "Stickman World Battle",
+        url:   "https://www.madkidgames.com/full/stickman-world-battle",
+        icon:  "resources/icons/stickmanworldbattle.jpg",
+        tag:   "Action"
+      },
+      {
+        title: "Beat the Puppet",
+        url:   "https://www.madkidgames.com/full/beat-the-puppet",
+        icon:  "resources/icons/beatthepuppet.jpg",
+        tag:   "Action"
+      },
+      {
+        title: "Last Day on Earth: Survival",
+        url:   "https://www.madkidgames.com/full/last-day-on-earth-survival",
+        icon:  "resources/icons/lastdayonearthsurvival.jpg",
+        tag:   "Survival"
+      },
+      {
+        title: "Granny",
+        url:   "https://www.madkidgames.com/full/granny",
+        icon:  "resources/icons/granny.jpg",
+        tag:   "Horror"
+      },
+      {
+        title: "Car Parking Pro",
+        url:   "https://www.madkidgames.com/full/car-parking-pro-park-and-drive",
+        icon:  "resources/icons/carparkingpro.jpg",
+        tag:   "Simulation"
+      },
+      {
+        title: "Stickman Construction Heroes",
+        url:   "https://www.madkidgames.com/full/stickman-destruction-3-heroes-ragdoll-game",
+        icon:  "resources/icons/stickmanconstructionheroes.jpg",
+        tag:   "Action"
+      },
+      {
+        title: "Stunt Bike Extreme",
+        url:   "https://www.madkidgames.com/full/stunt-bike-extreme",
+        icon:  "resources/icons/stuntbikeextreme.jpg",
+        tag:   "Racing"
+      }
+    ];
+
+    const grid      = document.getElementById('game-grid');
+    const searchEl  = document.getElementById('search');
+    const countEl   = document.getElementById('game-count');
+    const noResults = document.getElementById('no-results');
+
+    function buildCard(game) {
+      const a = document.createElement('a');
+      a.className = 'game-card';
+      a.href = `game.html?title=${encodeURIComponent(game.title)}&url=${encodeURIComponent(game.url)}&icon=${encodeURIComponent(game.icon)}&tag=${encodeURIComponent(game.tag)}`;
+
+      a.innerHTML = `
+        <div class="card-thumb">
+          <img src="${game.icon}" alt="${game.title}" loading="lazy" />
+          <div class="card-play-overlay">
+            <div class="play-btn">▶</div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-tag">${game.tag}</div>
+          <div class="card-title">${game.title}</div>
+        </div>
+      `;
+      return a;
+    }
+
+    function render(query = '') {
+      grid.innerHTML = '';
+      const q = query.toLowerCase().trim();
+      const filtered = GAMES.filter(g =>
+        g.title.toLowerCase().includes(q) || g.tag.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        noResults.style.display = 'block';
+        countEl.textContent = '0 games';
+      } else {
+        noResults.style.display = 'none';
+        countEl.textContent = `${filtered.length} game${filtered.length !== 1 ? 's' : ''}`;
+        filtered.forEach(g => grid.appendChild(buildCard(g)));
+      }
+    }
+
+    searchEl.addEventListener('input', () => render(searchEl.value));
+
+    render();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading… | Definitely Schoolwork</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0b0f;
+      --surface:   #12141c;
+      --card:      #181b26;
+      --border:    #252a3a;
+      --accent1:   #7c3aed;
+      --accent2:   #06b6d4;
+      --accent-glow: rgba(124, 58, 237, 0.4);
+      --text:      #e8eaf0;
+      --muted:     #6b7280;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 4vw, 2.5rem);
+      height: 64px;
+      background: rgba(18, 20, 28, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .back-btn:hover {
+      color: var(--text);
+      border-color: var(--accent1);
+      background: rgba(124, 58, 237, 0.1);
+    }
+    .back-arrow { font-size: 1rem; }
+
+    .game-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .game-meta-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    .game-meta-info {
+      min-width: 0;
+    }
+
+    .game-meta-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-meta-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 520px) {
+      .logo-text { display: none; }
+      .back-btn span:not(.back-arrow) { display: none; }
+    }
+
+    /* ── Game stage ── */
+    .stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Loader overlay ── */
+    #loader {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      background: var(--bg);
+      transition: opacity 0.5s ease;
+    }
+
+    #loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 52px; height: 52px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent1);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loader-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .loader-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── Iframe ── */
+    #game-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ── Error state ── */
+    #error-state {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 60;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: var(--bg);
+      text-align: center;
+      padding: 2rem;
+    }
+    #error-state.visible { display: flex; }
+    .error-icon { font-size: 3rem; }
+    .error-title { font-size: 1.1rem; font-weight: 600; }
+    .error-sub { font-size: 0.85rem; color: var(--muted); max-width: 340px; line-height: 1.6; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: filter 0.2s, transform 0.15s;
+    }
+    .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: #fff;
+    }
+    .btn-ghost {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 4vw, 2.5rem);
+      height: 44px;
+      background: rgba(18, 20, 28, 0.9);
+      border-top: 1px solid var(--border);
+      gap: 1rem;
+    }
+
+    .bottom-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .fullscreen-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .fullscreen-btn:hover {
+      color: var(--text);
+      border-color: var(--accent2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="header-left">
+      <a href="index.html" class="back-btn">
+        <span class="back-arrow">←</span>
+        <span>All Games</span>
+      </a>
+      <div class="game-meta">
+        <img id="meta-icon" class="game-meta-icon" src="" alt="" />
+        <div class="game-meta-info">
+          <div id="meta-title" class="game-meta-title">Loading…</div>
+          <div id="meta-tag"   class="game-meta-tag">Game</div>
+        </div>
+      </div>
+    </div>
+
+    <a href="index.html" class="logo-link">
+      <div class="logo-icon">🎮</div>
+      <span class="logo-text">Definitely Schoolwork</span>
+    </a>
+  </header>
+
+  <!-- ── Game stage ── -->
+  <div class="stage" id="stage">
+
+    <!-- Loader -->
+    <div id="loader">
+      <div class="spinner"></div>
+      <div class="loader-title">LOADING GAME</div>
+      <div class="loader-sub" id="loader-game-name">Please wait…</div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-state">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">Couldn't load the game</div>
+      <div class="error-sub">The game may have blocked embedding, or the link may have changed. Try opening it directly.</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
+        <a id="open-direct" href="#" target="_blank" class="btn btn-primary">Open Directly ↗</a>
+        <a href="index.html" class="btn btn-ghost">← Back to Games</a>
+      </div>
+    </div>
+
+    <!-- Iframe -->
+    <iframe
+      id="game-frame"
+      src="about:blank"
+      title="Game"
+      allowfullscreen
+      allow="fullscreen; autoplay"
+    ></iframe>
+  </div>
+
+  <!-- ── Bottom bar ── -->
+  <div class="bottom-bar">
+    <span class="bottom-hint">🎮 Tip: Use fullscreen for the best experience</span>
+    <button class="fullscreen-btn" id="fs-btn">⛶ Fullscreen</button>
+  </div>
+
+  <script>
+    // ── Parse URL params ──
+    const params   = new URLSearchParams(window.location.search);
+    const title    = params.get('title') || 'Game';
+    const url      = params.get('url')   || '';
+    const icon     = params.get('icon')  || '';
+    const tag      = params.get('tag')   || 'Game';
+
+    // ── Set page title & meta ──
+    document.title = `${title} | Definitely Schoolwork`;
+
+    document.getElementById('meta-title').textContent     = title;
+    document.getElementById('meta-tag').textContent       = tag;
+    document.getElementById('loader-game-name').textContent = title;
+    document.getElementById('open-direct').href           = url;
+
+    const iconEl = document.getElementById('meta-icon');
+    if (icon) {
+      iconEl.src = icon;
+      iconEl.alt = title;
+    } else {
+      iconEl.style.display = 'none';
+    }
+
+    // ── Load iframe ──
+    const frame  = document.getElementById('game-frame');
+    const loader = document.getElementById('loader');
+    const errEl  = document.getElementById('error-state');
+
+    let loadTimer;
+
+    if (url) {
+      // Give the iframe 12 s to load before showing "couldn't load" hint
+      loadTimer = setTimeout(() => {
+        // Don't forcibly show error — browser may block the event.
+        // Just hide the spinner so the (possibly blank) frame is visible.
+        loader.classList.add('hidden');
+      }, 12000);
+
+      frame.addEventListener('load', () => {
+        clearTimeout(loadTimer);
+        loader.classList.add('hidden');
+      });
+
+      frame.src = url;
+    } else {
+      loader.classList.add('hidden');
+      errEl.classList.add('visible');
+    }
+
+    // ── Fullscreen ──
+    document.getElementById('fs-btn').addEventListener('click', () => {
+      const stage = document.getElementById('stage');
+      const req   = stage.requestFullscreen
+                 || stage.webkitRequestFullscreen
+                 || stage.mozRequestFullScreen;
+      if (req) req.call(stage);
+    });
+  </script>
+</body>
+</html>
+
