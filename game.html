@@ -388,19 +388,19 @@
     let loadTimer;
 
     if (url) {
-      // Give the iframe 12 s to load before showing "couldn't load" hint
+      // Give the iframe 15 s to load before hiding the spinner.
       loadTimer = setTimeout(() => {
-        // Don't forcibly show error — browser may block the event.
-        // Just hide the spinner so the (possibly blank) frame is visible.
         loader.classList.add('hidden');
-      }, 12000);
+      }, 15000);
 
       frame.addEventListener('load', () => {
         clearTimeout(loadTimer);
         loader.classList.add('hidden');
       });
 
-      frame.src = url;
+      // Route through the self-proxy so X-Frame-Options / CSP headers
+      // on the target site are bypassed (educational experiment).
+      frame.src = `proxy.html?url=${encodeURIComponent(url)}`;
     } else {
       loader.classList.add('hidden');
       errEl.classList.add('visible');

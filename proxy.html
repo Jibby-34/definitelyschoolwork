@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading…</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: #0a0b0f;
+      color: #e8eaf0;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+    }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 3px solid #252a3a;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #status {
+      font-size: 0.82rem;
+      color: #6b7280;
+      max-width: 340px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    #status.error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="spinner" id="spinner"></div>
+  <p id="status">Proxying content…</p>
+
+  <script>
+    // ─── Simple self-proxy ───────────────────────────────────────────────────
+    // Uses a public CORS proxy to fetch external pages, strips X-Frame-Options,
+    // and rewrites the document so it can be embedded freely.
+    // Educational use only.
+    // ────────────────────────────────────────────────────────────────────────
+
+    const PROXY_ENDPOINTS = [
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    ];
+
+    const params = new URLSearchParams(location.search);
+    const target = params.get('url');
+
+    if (!target) {
+      document.getElementById('status').textContent = 'No URL provided.';
+      document.getElementById('status').classList.add('error');
+      document.getElementById('spinner').style.display = 'none';
+    } else {
+      proxyLoad(target, 0);
+    }
+
+    async function proxyLoad(url, endpointIndex) {
+      if (endpointIndex >= PROXY_ENDPOINTS.length) {
+        // All proxies failed — fall back to direct load
+        document.getElementById('status').textContent =
+          'Proxy failed — trying direct load…';
+        location.href = url;
+        return;
+      }
+
+      const proxyUrl = PROXY_ENDPOINTS[endpointIndex](url);
+
+      try {
+        const res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        let html = await res.text();
+
+        // ── Resolve a base URL for relative assets ──
+        const parsed  = new URL(url);
+        const lastSlash = parsed.pathname.lastIndexOf('/');
+        const basePath  = parsed.origin +
+          (lastSlash >= 0 ? parsed.pathname.slice(0, lastSlash + 1) : '/');
+
+        // Inject <base> tag only if none already exists
+        if (!/< *base\b/i.test(html)) {
+          // Try to insert right after <head> opening tag
+          if (/< *head[^>]*>/i.test(html)) {
+            html = html.replace(
+              /(< *head[^>]*>)/i,
+              `$1<base href="${basePath}">`
+            );
+          } else {
+            // Prepend before everything else as a last resort
+            html = `<base href="${basePath}">` + html;
+          }
+        }
+
+        // ── Write the proxied HTML into this document ──
+        // document.open/write replaces the page in-place, keeping the same
+        // origin (proxy.html's origin) so no X-Frame-Options ever applies.
+        document.open('text/html', 'replace');
+        document.write(html);
+        document.close();
+
+      } catch (err) {
+        console.warn(`Proxy endpoint ${endpointIndex} failed:`, err);
+        // Try the next proxy endpoint
+        proxyLoad(url, endpointIndex + 1);
+      }
+    }
+  </script>
+</body>
+</html>
+
