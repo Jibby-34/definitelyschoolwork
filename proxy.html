@@ -33,11 +33,51 @@
       line-height: 1.6;
     }
     #status.error { color: #f87171; }
+
+    /* Error card */
+    #error-card {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      background: #181b26;
+      border: 1px solid #252a3a;
+      border-radius: 18px;
+      padding: 2rem 2.5rem;
+      max-width: 360px;
+      text-align: center;
+    }
+    #error-card .err-icon { font-size: 2.5rem; }
+    #error-card h2 { font-size: 1rem; font-weight: 600; color: #e8eaf0; }
+    #error-card p  { font-size: 0.82rem; color: #6b7280; line-height: 1.6; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 0.25rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; border: none;
+      transition: filter 0.2s, transform 0.15s;
+    }
+    .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; }
+    .btn-ghost   { background: #181b26; border: 1px solid #252a3a; color: #e8eaf0; }
   </style>
 </head>
 <body>
   <div class="spinner" id="spinner"></div>
   <p id="status">Proxying content…</p>
+
+  <!-- Shown when all proxy endpoints fail -->
+  <div id="error-card">
+    <div class="err-icon">⚠️</div>
+    <h2>All proxies failed</h2>
+    <p>Every proxy endpoint was unreachable or blocked this site.
+       You can still open the game directly in a new tab.</p>
+    <div class="btn-row">
+      <a id="open-direct" href="#" target="_blank" rel="noopener" class="btn btn-primary">Open in New Tab ↗</a>
+      <a href="index.html" class="btn btn-ghost">← Back</a>
+    </div>
+  </div>
 
   <script>
     // ─── Simple self-proxy ───────────────────────────────────────────────────
@@ -49,6 +89,8 @@
     const PROXY_ENDPOINTS = [
       url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
       url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      url => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
     const params = new URLSearchParams(location.search);
@@ -64,10 +106,8 @@
 
     async function proxyLoad(url, endpointIndex) {
       if (endpointIndex >= PROXY_ENDPOINTS.length) {
-        // All proxies failed — fall back to direct load
-        document.getElementById('status').textContent =
-          'Proxy failed — trying direct load…';
-        location.href = url;
+        // All proxies exhausted — show a helpful error with an open-in-new-tab button
+        showError(url);
         return;
       }
 
@@ -110,6 +150,14 @@
         // Try the next proxy endpoint
         proxyLoad(url, endpointIndex + 1);
       }
+    }
+
+    function showError(url) {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('status').style.display  = 'none';
+      const card = document.getElementById('error-card');
+      document.getElementById('open-direct').href = url;
+      card.style.display = 'flex';
     }
   </script>
 </body>
